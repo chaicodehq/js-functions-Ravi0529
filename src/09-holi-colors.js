@@ -54,21 +54,77 @@
  *   // red and blue objects are UNCHANGED
  */
 export function mixColors(color1, color2) {
-  // Your code here
+  if (!isValidColor(color1) || !isValidColor(color2)) {
+    return null;
+  }
+
+  return {
+    name: `${color1.name}-${color2.name}`,
+    r: Math.round((color1.r + color2.r) / 2),
+    g: Math.round((color1.g + color2.g) / 2),
+    b: Math.round((color1.b + color2.b) / 2),
+  };
 }
 
 export function adjustBrightness(color, factor) {
-  // Your code here
+  if (!isValidColor(color) || typeof factor !== "number" || Number.isNaN(factor)) {
+    return null;
+  }
+
+  return {
+    ...color,
+    r: clampColorValue(color.r * factor),
+    g: clampColorValue(color.g * factor),
+    b: clampColorValue(color.b * factor),
+  };
 }
 
 export function addToPalette(palette, color) {
-  // Your code here
+  if (!Array.isArray(palette)) {
+    return isValidColor(color) ? [{ ...color }] : [color];
+  }
+
+  if (!isValidColor(color)) {
+    return [...palette];
+  }
+
+  return [...palette, { ...color }];
 }
 
 export function removeFromPalette(palette, colorName) {
-  // Your code here
+  if (!Array.isArray(palette)) {
+    return [];
+  }
+
+  return palette.filter((color) => color.name !== colorName).map((color) => ({ ...color }));
 }
 
 export function mergePalettes(palette1, palette2) {
-  // Your code here
+  const firstPalette = Array.isArray(palette1) ? palette1 : [];
+  const secondPalette = Array.isArray(palette2) ? palette2 : [];
+  const merged = [...firstPalette, ...secondPalette];
+  const seen = new Set();
+
+  return merged.reduce((result, color) => {
+    if (!color || seen.has(color.name)) {
+      return result;
+    }
+
+    seen.add(color.name);
+    return [...result, { ...color }];
+  }, []);
+}
+
+function isValidColor(color) {
+  return (
+    color &&
+    typeof color.name === "string" &&
+    typeof color.r === "number" &&
+    typeof color.g === "number" &&
+    typeof color.b === "number"
+  );
+}
+
+function clampColorValue(value) {
+  return Math.max(0, Math.min(255, Math.round(value)));
 }
